@@ -26,4 +26,12 @@ class Task extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function scopeOverdue($query)
+    {
+        return $query
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', now())
+            ->where('status', '!=', 'done');
+    }
 }
