@@ -36,14 +36,18 @@ class TaskController extends Controller
             $request->validated()
         );
 
-        return new TaskResource($task);
+        return (new TaskResource($task))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function update(UpdateTaskRequest $request, Task $task)
     {
         $task->update($request->validated());
 
-        return new TaskResource($task);
+        return (new TaskResource($task))
+            ->response()
+            ->setStatusCode(200);
     }
 
     public function destroy(Task $task)

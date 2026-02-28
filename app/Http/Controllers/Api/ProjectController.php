@@ -21,6 +21,8 @@ class ProjectController extends Controller
     {
         $project = Project::create($request->validated());
 
-        return new ProjectResource($project);
+        return (new ProjectResource($project))
+            ->response()
+            ->setStatusCode(201);
     }
 }
