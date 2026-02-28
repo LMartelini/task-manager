@@ -13,15 +13,17 @@ class TaskController extends Controller
 {
     public function index(Project $project)
     {
-        $query = $project->tasks();
-
-        if (request('status')) {
-            $query->where('status', request('status'));
-        }
-
-        if (request('priority')) {
-            $query->where('priority', request('priority'));
-        }
+        $query = $project->tasks()
+            ->when(request('status'), function ($q) {
+                $q->where('status', request('status'));
+            })
+            ->when(request('priority'), function ($q) {
+                $q->where('priority', request('priority'));
+            })
+            ->when(request('overdue') === 'true', function ($q) {
+                $q->overdue();
+            })
+            ->latest();
 
         $tasks = $query->paginate(10);
 
