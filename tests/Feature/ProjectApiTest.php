@@ -44,4 +44,35 @@ class ProjectApiTest extends TestCase
             'project_id' => $project->id,
         ]);
     }
+
+    public function test_can_update_task_status(): void
+    {
+        $task = \App\Models\Task::factory()->create([
+            'status' => 'todo'
+        ]);
+
+        $response = $this->patchJson("/api/tasks/{$task->id}", [
+            'status' => 'done'
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task->id,
+            'status' => 'done'
+        ]);
+    }
+
+    public function test_can_delete_task(): void 
+    {
+        $task = \App\Models\Task::factory()->create();
+
+        $response = $this->deleteJson("api/tasks/{task}/{$task->id}");
+
+        $response->assertStatus(200);
+
+        $this->assertSoftDeleted('tasks', [
+            'id' => $task->id,
+        ]);
+    }
 }
