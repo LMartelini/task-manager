@@ -25,4 +25,13 @@ class ProjectController extends Controller
             ->response()
             ->setStatusCode(201);
     }
+
+    public function show(Project $project)
+    {
+        $project->loadCount('tasks');
+
+        return (new ProjectResource($project))
+            ->response()
+            ->setStatusCode(200);
+    }
 }
