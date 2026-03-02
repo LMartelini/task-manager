@@ -3,9 +3,10 @@ import { api } from './api'
 export interface Project {
   id: number
   name: string
-  description?: string
+  description: string | null
+  status: 'active' | 'archived'
+  tasks_count?: number
   created_at: string
-  updated_at: string
 }
 
 export const projectsService = {
