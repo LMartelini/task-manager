@@ -18,4 +18,9 @@ export const projectsService = {
     const response = await api.get<PaginatedResponse<Project>>('/projects')
     return response.data
   },
+
+   async getById(id: number) {
+    const response = await api.get<Project>(`/projects/${id}`)
+    return response.data
+  },
 }
