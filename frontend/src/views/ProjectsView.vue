@@ -13,30 +13,52 @@ const goToProject = (id: number) => {
 
 <template>
 	<AppLayout>
-		<div>
-			<h2 class="text-2xl font-bold mb-6">Projetos</h2>
+		<div class="flex justify-between items-center mb-6">
+			<h2 class="text-2xl font-bold">Projetos</h2>
 
-			<p v-if="loading">Carregando...</p>
-			<p v-else-if="error">{{ error }}</p>
+			<button
+				class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+			>
+				+ Novo Projeto
+			</button>
+		</div>
 
-			<ul v-else>
-				<li
-					v-for="project in projects"
-					:key="project.id"
-					@click="goToProject(project.id)"
-					style="cursor: pointer; margin-bottom: 10px;"
-				>
-					<strong>{{ project.name }}</strong>
+		<p v-if="loading" class="text-gray-500">Carregando...</p>
+		<p v-else-if="error" class="text-red-500">{{ error }}</p>
 
-					<br />
+		<div
+			v-else
+			class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+		>
+			<div
+				v-for="project in projects"
+				:key="project.id"
+				@click="goToProject(project.id)"
+				class="bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer p-5 border"
+			>
+				<div class="flex justify-between items-start">
+					<h3 class="text-lg font-semibold">
+						{{ project.name }}
+					</h3>
 
-					Status: {{ project.status }}
-					
-					<br />
-					
-					Tarefas: {{ project.tasks_count }}
-				</li>
-			</ul>
+					<span
+						class="text-xs px-2 py-1 rounded-full"
+						:class="project.status === 'active'
+							? 'bg-green-100 text-green-700'
+							: 'bg-gray-200 text-gray-600'"
+					>
+						{{ project.status }}
+					</span>
+				</div>
+
+				<p class="text-sm text-gray-600 mt-2 line-clamp-2">
+					{{ project.description }}
+				</p>
+
+				<div class="mt-4 text-sm text-gray-500">
+					{{ project.tasks_count }} tarefas
+				</div>
+			</div>
 		</div>
 	</AppLayout>
 </template>
