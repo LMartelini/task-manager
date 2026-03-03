@@ -17,6 +17,7 @@ onMounted(() => {
 		<p v-else-if="error">{{ error }}</p>
 
 		<div v-else-if="project">
+			<pre>{{ project }}</pre>
 			<h1>{{ project.name }}</h1>
 			<p>{{ project.description }}</p>
 			<p>Status: {{ project.status }}</p>

@@ -11,7 +11,8 @@ export function useProject() {
 			loading.value = true
 			error.value = null
 
-			project.value = await projectsService.getById(id)
+			const response = await projectsService.getById(id)
+			project.value = response.data
 		} catch {
 			error.value = 'Erro ao carregar projeto'
 		} finally {
