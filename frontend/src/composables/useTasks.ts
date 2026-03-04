@@ -36,6 +36,7 @@ export function useTasks(projectId: number) {
         description?: string
         priority: 'low' | 'medium' | 'high'
         due_date?: string | null
+        status: 'todo' | 'in_progress' | 'done'
     }) => {
         try {
             loading.value = true

@@ -37,6 +37,7 @@ export const tasksService = {
         description?: string
         priority: 'low' | 'medium' | 'high'
         due_date?: string | null
+        status: 'todo' | 'in_progress' | 'done'
     }) {
         const response = await api.post(
             `/projects/${projectId}/tasks`,
