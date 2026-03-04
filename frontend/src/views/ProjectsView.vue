@@ -1,14 +1,54 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { useProjects } from '@/composables/useProjects'
-import AppLayout from '@/components/layout/AppLayout.vue'
+	import { useRouter } from 'vue-router'
+	import { ref } from 'vue'
+	import { api } from '@/services/api'
 
-const router = useRouter()
-const { projects, loading, error } = useProjects()
+	import { useProjects } from '@/composables/useProjects'
+	import AppLayout from '@/components/layout/AppLayout.vue'
+	import BaseModal from '@/components/ui/BaseModal.vue'
 
-const goToProject = (id: number) => {
-	router.push(`/projects/${id}`)
-}
+	const router = useRouter()
+	const { projects, loading, error, fetchProjects } = useProjects()
+
+	const goToProject = (id: number) => {
+		router.push(`/projects/${id}`)
+	}
+
+
+	const showModal = ref(false)
+
+	const form = ref({
+		name: '',
+		description: '',
+		status: 'active'
+	})
+
+	const creating = ref(false)
+	const createError = ref<string | null>(null)
+
+	async function createProject() {
+		creating.value = true
+		createError.value = null
+
+		try {
+			await api.post('/projects', form.value)
+
+			showModal.value = false
+
+			form.value = {
+				name: '',
+				description: '',
+				status: 'active'
+			}
+
+			await fetchProjects()
+		} catch (err: any) {
+			createError.value =
+			err.response?.data?.message ?? 'Erro ao criar projeto'
+		} finally {
+			creating.value = false
+		}
+	}
 </script>
 
 <template>
@@ -17,6 +57,7 @@ const goToProject = (id: number) => {
 			<h2 class="text-2xl font-bold">Projetos</h2>
 
 			<button
+				@click="showModal = true"
 				class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
 			>
 				+ Novo Projeto
@@ -60,5 +101,61 @@ const goToProject = (id: number) => {
 				</div>
 			</div>
 		</div>
+
+		<BaseModal :show="showModal" @close="showModal = false">
+			<h3 class="text-lg font-semibold mb-4">Novo Projeto</h3>
+
+			<form @submit.prevent="createProject" class="space-y-4">
+				<div>
+					<label class="block text-sm mb-1">Nome</label>
+					<input
+						v-model="form.name"
+						required
+						class="w-full border rounded-lg px-3 py-2 text-sm"
+					/>
+				</div>
+
+				<div>
+					<label class="block text-sm mb-1">Descrição</label>
+					<textarea
+						v-model="form.description"
+						class="w-full border rounded-lg px-3 py-2 text-sm"
+					/>
+				</div>
+
+				<div>
+					<label class="block text-sm mb-1">Status</label>
+					<select
+						v-model="form.status"
+						class="w-full border rounded-lg px-3 py-2 text-sm"
+					>
+						<option value="active">Active</option>
+						<option value="archived">Archived</option>
+					</select>
+				</div>
+
+				<p v-if="createError" class="text-red-500 text-sm">
+					{{ createError }}
+				</p>
+
+				<div class="flex justify-end gap-2 pt-2">
+					<button
+						type="button"
+						@click="showModal = false"
+						class="px-4 py-2 text-sm border rounded-lg"
+					>
+						Cancelar
+					</button>
+
+					<button
+						type="submit"
+						:disabled="creating"
+						class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition disabled:opacity-50"
+					>
+						{{ creating ? 'Criando...' : 'Criar' }}
+					</button>
+				</div>
+			</form>
+		</BaseModal>
 	</AppLayout>
 </template>
