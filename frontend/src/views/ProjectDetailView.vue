@@ -1,4 +1,6 @@
 <script setup lang="ts">
+	import { ref, watch } from 'vue'
+	import type { TaskFilters } from '@/services/tasks.service'
 	import { onMounted } from 'vue'
 	import { useRoute } from 'vue-router'
 	import { useProject } from '@/composables/useProject'
@@ -10,8 +12,36 @@
 	const route = useRoute()
 	const { project, loading, error, fetchProject } = useProject()
 
-	const { tasks, loading: tasksLoading, error: tasksError } =
+	const { 
+		tasks, 
+		loading: tasksLoading, 
+		error: tasksError,
+		fetchTasks
+	} =
 	useTasks(Number(route.params.id))
+
+	const statusFilter = ref<TaskFilters['status'] | ''>('')
+	const priorityFilter = ref<TaskFilters['priority'] | ''>('')
+
+	let timeout: ReturnType<typeof setTimeout>
+
+	watch([statusFilter, priorityFilter], () => {
+	clearTimeout(timeout)
+
+	timeout = setTimeout(() => {
+		const filters: TaskFilters = {}
+
+		if (statusFilter.value) {
+		filters.status = statusFilter.value
+		}
+
+		if (priorityFilter.value) {
+		filters.priority = priorityFilter.value
+		}
+
+		fetchTasks(filters)
+	}, 500)
+	})
 
 	onMounted(() => {
 		fetchProject(Number(route.params.id))
@@ -49,6 +79,29 @@
 	</div>
 
 	<h2>Tarefas</h2>
+	<div class="flex gap-4 mb-4 flex-wrap">
+
+  <select
+    v-model="statusFilter"
+    class="border rounded-lg px-3 py-2 text-sm"
+  >
+    <option value="">Todos os status</option>
+    <option value="todo">Todo</option>
+    <option value="in_progress">In Progress</option>
+    <option value="done">Done</option>
+  </select>
+
+  <select
+    v-model="priorityFilter"
+    class="border rounded-lg px-3 py-2 text-sm"
+  >
+    <option value="">Todas as prioridades</option>
+    <option value="low">Low</option>
+    <option value="medium">Medium</option>
+    <option value="high">High</option>
+  </select>
+
+</div>
 
 	<p v-if="tasksLoading">Carregando tarefas...</p>
 	<p v-else-if="tasksError">{{ tasksError }}</p>
