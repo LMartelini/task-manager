@@ -30,5 +30,19 @@ export const tasksService = {
         )
 
         return response.data
-    }
+    },
+
+    async create(projectId: number, payload: {
+        title: string
+        description?: string
+        priority: 'low' | 'medium' | 'high'
+        due_date?: string | null
+    }) {
+        const response = await api.post(
+            `/projects/${projectId}/tasks`,
+            payload
+        )
+
+        return response.data
+    }   
 }
