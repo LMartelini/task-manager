@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import { ref, watch } from 'vue'
-	import type { TaskFilters } from '@/services/tasks.service'
+	import type { Task, TaskFilters } from '@/services/tasks.service'
 	import { onMounted } from 'vue'
 	import { useRoute } from 'vue-router'
 	import { useProject } from '@/composables/useProject'
@@ -27,21 +27,21 @@
 	let timeout: ReturnType<typeof setTimeout>
 
 	watch([statusFilter, priorityFilter], () => {
-	clearTimeout(timeout)
+		clearTimeout(timeout)
 
-	timeout = setTimeout(() => {
-		const filters: TaskFilters = {}
+		timeout = setTimeout(() => {
+			const filters: TaskFilters = {}
 
-		if (statusFilter.value) {
-		filters.status = statusFilter.value
-		}
+			if (statusFilter.value) {
+				filters.status = statusFilter.value
+			}
 
-		if (priorityFilter.value) {
-		filters.priority = priorityFilter.value
-		}
+			if (priorityFilter.value) {
+				filters.priority = priorityFilter.value
+			}
 
-		fetchTasks(filters)
-	}, 500)
+			fetchTasks(filters)
+		}, 500)
 	})
 
 	onMounted(() => {
@@ -86,18 +86,24 @@
 		}
 	}
 
-	async function updateTaskStatus(taskId: number, newStatus: 'todo' | 'in_progress' | 'done') {
+	async function updateTaskStatus(taskId: number, newStatus: Task['status']) {
 		const task = tasks.value.find(t => t.id === taskId)
 
 		if (!task) return
 
 		const oldStatus = task.status
-		task.status = newStatus 
+
+		task.status = newStatus
 
 		try {
-			await api.patch(`/tasks/${taskId}`, {
-			status: newStatus
+			await api.patch(`tasks/${taskId}`, {
+				status: newStatus
 			})
+
+			if (statusFilter.value && newStatus !== statusFilter.value) {
+				tasks.value = tasks.value.filter(t => t.id !== taskId)
+			}
+
 		} catch {
 			task.status = oldStatus
 		}
@@ -192,8 +198,12 @@
 	<p v-if="tasksLoading">Carregando tarefas...</p>
 	<p v-else-if="tasksError">{{ tasksError }}</p>
 
-	<div class="grid gap-3">
-		<TaskCard
+	<TransitionGroup
+		tag="div"
+		name="task"
+		class="grid gap-3"
+	>
+  		<TaskCard
 			v-for="task in tasks"
 			:key="task.id"
 			:id="task.id"
@@ -202,7 +212,23 @@
 			:priority="task.priority"
 			:isOverdue="task.is_overdue"
 			@update-status="(value) => updateTaskStatus(task.id, value)"
-		/>
-	</div>
-
+  		/>
+	</TransitionGroup>
 </template>
+
+<style scoped>
+	.task-enter-active,
+	.task-leave-active {
+		transition: all 0.25s ease;
+	}
+
+	.task-enter-from {
+		opacity: 0;
+		transform: translateY(-6px);
+	}
+
+	.task-leave-to {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+</style>
