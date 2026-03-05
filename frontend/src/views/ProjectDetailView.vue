@@ -161,24 +161,35 @@
 	</div>
 
 	<p v-if="tasksLoading">Carregando tarefas...</p>
-	<p v-else-if="tasksError">{{ tasksError }}</p>
+
+	<p v-else-if="tasksError">
+		{{ tasksError }}
+	</p>
+
+	<p
+		v-else-if="tasks.length === 0"
+		class="text-sm text-gray-500 mt-4"
+	>
+		Nenhuma tarefa encontrada. Crie a primeira tarefa do projeto.
+	</p>
 
 	<TransitionGroup
+		v-else
 		tag="div"
 		name="task"
 		class="grid gap-3"
 	>
-  		<TaskCard
-			v-for="task in tasks"
-			:key="task.id"
-			:id="task.id"
-			:title="task.title"
-			:status="task.status"
-			:priority="task.priority"
-			:isOverdue="task.is_overdue"
-			@update-status="(value) => taskStore.updateTaskStatus(task.id, value)"
-  		/>
-	</TransitionGroup>
+		<TaskCard 
+			v-for="task in tasks" 
+			:key="task.id" 
+			:id="task.id" 
+			:title="task.title" 
+			:status="task.status" 
+			:priority="task.priority" 
+			:isOverdue="task.is_overdue" 
+			@update-status="(value) => taskStore.updateTaskStatus(task.id, value)" 
+		/> 
+	</TransitionGroup> 
 </template>
 
 <style scoped>
