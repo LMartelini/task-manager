@@ -32,11 +32,8 @@ export const useTaskStore = defineStore('tasks', () => {
             status: 'todo' | 'in_progress' | 'done'
         }
     ) {
-        const task = await tasksService.create(projectId, payload)
-
-        tasks.value.unshift(task)
-
-        return task
+        await tasksService.create(projectId, payload)
+        await fetchTasks(projectId)
     }
 
     return {

@@ -1,25 +1,19 @@
 <script setup lang="ts">
-	import { ref, watch } from 'vue'
+	import { ref, watch, onMounted } from 'vue'
 	import type { Task, TaskFilters } from '@/services/tasks.service'
-	import { onMounted } from 'vue'
 	import { useRoute } from 'vue-router'
 	import { useProject } from '@/composables/useProject'
-	import { useTasks } from '@/composables/useTasks'
+	import { useTaskStore } from '@/stores/taskStore'
+	import { storeToRefs } from 'pinia'
 	import TaskCard from '@/components/tasks/TaskCard.vue'
 	import { api } from '@/services/api'
 
-
 	const route = useRoute()
-	const { project, loading, error, fetchProject } = useProject()
 
-	const { 
-		tasks, 
-		loading: tasksLoading, 
-		error: tasksError,
-		fetchTasks,
-		createTask
-	} =
-	useTasks(Number(route.params.id))
+	const { project, loading: projectLoading, error: projectError, fetchProject } = useProject()
+
+	const taskStore = useTaskStore()
+	const { tasks, loading: tasksLoading, error: tasksError } = storeToRefs(taskStore)
 
 	const statusFilter = ref<TaskFilters['status'] | ''>('')
 	const priorityFilter = ref<TaskFilters['priority'] | ''>('')
@@ -40,12 +34,15 @@
 				filters.priority = priorityFilter.value
 			}
 
-			fetchTasks(filters)
+			taskStore.fetchTasks(Number(route.params.id), filters)
 		}, 500)
 	})
 
 	onMounted(() => {
-		fetchProject(Number(route.params.id))
+		const projectId = Number(route.params.id)
+
+		fetchProject(projectId)
+		taskStore.fetchTasks(projectId)
 	})
 
 	const newTask = ref({
@@ -65,13 +62,16 @@
 		createTaskError.value = null
 
 		try {
-			await createTask({
-				title: newTask.value.title,
-				description: newTask.value.description,
-				priority: newTask.value.priority,
-				due_date: newTask.value.due_date || null,
-				status: 'todo'
-			})
+			await taskStore.createTask(
+				Number(route.params.id),
+				{
+					title: newTask.value.title,
+					description: newTask.value.description,
+					priority: newTask.value.priority,
+					due_date: newTask.value.due_date || null,
+					status: 'todo'
+				}
+			)
 
 			newTask.value = {
 				title: '',
@@ -79,6 +79,7 @@
 				priority: 'medium',
 				due_date: ''
 			}
+
 		} catch {
 			createTaskError.value = 'Erro ao criar tarefa'
 		} finally {
@@ -111,18 +112,6 @@
 </script>
 
 <template>
-	<!-- <div>
-		<p v-if="loading">Carregando...</p>
-		<p v-else-if="error">{{ error }}</p>
-
-		<div v-else-if="project">
-			<h1>{{ project.name }}</h1>
-			<p>{{ project.description }}</p>
-			<p>Status: {{ project.status }}</p>
-			<p>Tarefas: {{ project.tasks_count }}</p>
-		</div>
-	</div> -->
-
 	<h2>Tarefas</h2>
 
 	<div class="flex gap-4 mb-4 flex-wrap">
