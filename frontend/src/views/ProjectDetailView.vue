@@ -6,7 +6,6 @@
 	import { useTaskStore } from '@/stores/taskStore'
 	import { storeToRefs } from 'pinia'
 	import TaskCard from '@/components/tasks/TaskCard.vue'
-	import { api } from '@/services/api'
 
 	const route = useRoute()
 
@@ -84,29 +83,6 @@
 			createTaskError.value = 'Erro ao criar tarefa'
 		} finally {
 			creatingTask.value = false
-		}
-	}
-
-	async function updateTaskStatus(taskId: number, newStatus: Task['status']) {
-		const task = tasks.value.find(t => t.id === taskId)
-
-		if (!task) return
-
-		const oldStatus = task.status
-
-		task.status = newStatus
-
-		try {
-			await api.patch(`tasks/${taskId}`, {
-				status: newStatus
-			})
-
-			if (statusFilter.value && newStatus !== statusFilter.value) {
-				tasks.value = tasks.value.filter(t => t.id !== taskId)
-			}
-
-		} catch {
-			task.status = oldStatus
 		}
 	}
 </script>
@@ -200,7 +176,7 @@
 			:status="task.status"
 			:priority="task.priority"
 			:isOverdue="task.is_overdue"
-			@update-status="(value) => updateTaskStatus(task.id, value)"
+			@update-status="(value) => taskStore.updateTaskStatus(task.id, value)"
   		/>
 	</TransitionGroup>
 </template>
