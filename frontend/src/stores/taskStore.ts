@@ -36,11 +36,31 @@ export const useTaskStore = defineStore('tasks', () => {
         await fetchTasks(projectId)
     }
 
+    async function updateTaskStatus(taskId: number, newStatus: Task['status']) {
+        const task = tasks.value.find(t => t.id === taskId)
+
+        if (!task) return
+
+        const oldStatus = task.status
+        task.status = newStatus
+
+        try {
+            await tasksService.update(taskId, {
+                status: newStatus
+            })
+
+        } catch {
+            task.status = oldStatus
+            throw new Error('Erro ao atualizar status')
+        }
+    }
+
     return {
         tasks,
         loading,
         error,
         fetchTasks,
-        createTask
+        createTask,
+        updateTaskStatus
     }
 })

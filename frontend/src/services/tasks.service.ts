@@ -25,7 +25,7 @@ export const tasksService = {
         const response = await api.get<PaginatedResponse<Task>>(
             `/projects/${projectId}/tasks`,
             {
-            params: filters
+                params: filters
             }
         )
 
@@ -45,5 +45,16 @@ export const tasksService = {
         )
 
         return response.data
-    }   
+    },   
+
+    async update(taskId: number, payload: {
+        status: 'todo' | 'in_progress' | 'done'
+    }) {
+        const response = await api.patch(
+            `/tasks/${taskId}`,
+            payload
+        )
+
+        return response.data
+    }
 }
