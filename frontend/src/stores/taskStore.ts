@@ -22,10 +22,28 @@ export const useTaskStore = defineStore('tasks', () => {
         }
     }
 
+    async function createTask(
+        projectId: number,
+        payload: {
+            title: string
+            description?: string
+            priority: 'low' | 'medium' | 'high'
+            due_date?: string | null
+            status: 'todo' | 'in_progress' | 'done'
+        }
+    ) {
+        const task = await tasksService.create(projectId, payload)
+
+        tasks.value.unshift(task)
+
+        return task
+    }
+
     return {
         tasks,
         loading,
         error,
-        fetchTasks
+        fetchTasks,
+        createTask
     }
 })
