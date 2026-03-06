@@ -174,11 +174,15 @@ npm run test
 
 Algumas melhorias poderiam ser implementadas em uma versão futura:
 
-- Paginação das tarefas no frontend
-- Melhor feedback visual para erros da API
-- Edição e exclusão de tarefas
-- Melhor cobertura de testes no frontend
-- Docker para facilitar ainda mais o setup do ambiente
+- Paginação das tarefas no frontend: não foi implementada para manter a interface mais simples para escopo do teste, uma vez que o volume de dados é pequeno;
+
+- Melhor feedback visual para erros da API: os erros estão sendo tratados de forma básica para atender ao escopo do projeto, mas ainda seria possível melhorar utilizando toasts ou mensagens contextualizadas para melhor experiência do usuário;
+
+- Edição e exclusão de tarefas: o teste exige a criação e atualização de status/prioridade das tarefas. As funcionalidades de edição completa e remoção poderiam ser adicionadas como evolução natural da aplicação;
+
+- Melhor cobertura de testes no frontend: foi implementado um teste inicial com Vitest para demonstrar a abordagem de testes, mas uma versão mais robusta incluiria testes adicionais para componentes e fluxos principais da aplicação;
+
+- Docker para facilitar ainda mais o setup do ambiente: o projeto foi configurado para rodar com dependências mínimas, mas um ambiente com Docker seria útil para padronizar o setup em diferentes máquinas.
 
 ## Estrutura do projeto
 
